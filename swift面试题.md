@@ -22,7 +22,7 @@
 
 * defer 语句块中的代码, 会在当前作用域结束前调用。每当一个作用域结束就进行该作用域defer执行。
 
-```
+```swift
 func doSomethingFile{
     openDirectory()
     defer{
@@ -46,7 +46,7 @@ func doSomethingFile{
 
 * 注意:输入输出参数不能具有默认值，并且可变参数不能标记为inout。
 
-```
+```swift
 func swapTwoInts(_ a: inout Int, _ b: inout Int) {
     let temporaryA = a
     a = b
@@ -85,7 +85,7 @@ print("someInt is now \(someInt), and anotherInt is now \(anotherInt)")
 	
 * 重载 ～= 该运算符
 
-```
+```swift
 switch 80 {
 case "eighty":
     //编译通过并且匹配
@@ -197,5 +197,62 @@ default:
 
 * 闭包是引用类型。如果一个闭包被分配给一个变量，这个变量复制给另一个变量，那么他们引用的是同一个闭包，他们的捕捉列表也会被复制。
 
-#### 16.Swift mutating关键字的使用？
+#### 16. Swift mutating关键字的使用？
 * 类是引用类型，而结构和枚举是值类型。默认情况下，不能在其实例方法中修改值类型的属性。为了修改值类型的属性，必须在实例方法中使用mutating关键字。使用此关键字，您的方法将能够更改属性的值，并在方法实现结束时将其写回到原始结构
+
+#### 17. 闭包
+* `闭包和函数是引用类型`，将函数或闭包赋值给一个常量还是变量，实际上都是将常量或变量的值设置为对应函数或闭包的引用。
+```swift
+func makeInCount(count: Int) -> () -> Int {
+    var total = 0
+    func incrementer() -> Int {
+        total += count
+        return count
+    }
+    return incrementer
+}
+let incrementBySeven = makeInCount(count: 7)
+incrementBySeven()
+let alsoIncrementBySeven = incrementBySeven
+alsoIncrementBySeven()
+```
+* `逃逸闭包`，当一个闭包作为参数传到一个函数中，但是这个闭包在函数返回之后才被执行，我们称该闭包从函数中逃逸。当你定义接受闭包作为参数的函数时，你可以在参数名之前标注 @escaping，用来指明这个闭包是允许“逃逸”出这个函数的。 例如网络请求⬇️
+```swift
+func request(result:@escaping((String)->())){
+    DispatchQueue.main.asyncAfter(wallDeadline: DispatchWallTime.now() + 10) {
+        result("数据结果")
+    }
+}
+```
+
+* `非逃逸闭包`, 永远不会离开一个函数的局部作用域的闭包就是非逃逸闭包。
+```swift 
+func player(complete:(Bool)->()){
+    complete(true)
+}
+```
+* `自动闭包`，自动闭包是一种自动创建的闭包，用于包装传递给函数作为参数的表达式。这种闭包不接受任何参数，当它被调用的时候，会返回被包装在其中的表达式的值。当闭包作为参数传入 可用@autoclosure标记闭包参数 ，可将参数当函数调用而并非以闭包的形式。这种便利语法让你能够省略闭包的花括号，用一个普通的表达式来代替显式的闭包
+ ```swift 
+var customersInLine = ["Chris", "Alex", "Ewa", "Barry", "Daniella"]
+print(customersInLine.count)
+// 打印出“5”
+let customerProvider = { customersInLine.remove(at: 0) }
+print(customersInLine.count)
+// 打印出“5”
+
+print("Now serving \(customerProvider())!")
+// 打印出“Now serving Chris!”
+print(customersInLine.count)
+// 打印出“4”
+
+// 
+// customersInLine is ["Ewa", "Barry", "Daniella"]
+func serve(customer customerProvider: @autoclosure () -> String) {
+    print("Now serving \(customerProvider())!")
+}
+serve(customer: customersInLine.remove(at: 0))
+// 打印“Now serving Ewa!”
+// 不用  @autoclosure 修饰
+serve(customer: { customersInLine.remove(at: 0) } )
+// 打印“Now serving Ewa!”
+```
