@@ -1,4 +1,3 @@
-# swift面试题
 * 总结关于swift的面试题------持续更新
 * 来源于网上、书籍等
 * [侵权即删-联系我](741136856@qq.com)
@@ -22,8 +21,8 @@
 
 * defer 语句块中的代码, 会在当前作用域结束前调用。每当一个作用域结束就进行该作用域defer执行。
 
-```swift
-func doSomethingFile{
+	```swift
+	func doSomethingFile{
     openDirectory()
     defer{
         closeDirectory()
@@ -33,9 +32,8 @@ func doSomethingFile{
         closeFile()
     }
     // do other things
-}
-
-```
+	}
+	```
 
 #### 4.inout 输入输出参数
 * 函数参数默认为常量。试图从函数主体内部更改函数参数的值会导致编译时错误。这意味着您不能错误地更改参数的值。如果您希望函数修改参数的值，并且希望这些更改在函数调用结束后仍然存在，请将该参数定义为输入输出参数。
@@ -46,19 +44,18 @@ func doSomethingFile{
 
 * 注意:输入输出参数不能具有默认值，并且可变参数不能标记为inout。
 
-```swift
-func swapTwoInts(_ a: inout Int, _ b: inout Int) {
+	```swift
     let temporaryA = a
     a = b
     b = temporaryA
-}
-// 参数a本身定义是常量，inout修饰，可以修改a的值
-var someInt = 3
-var anotherInt = 107
-swapTwoInts(&someInt, &anotherInt)
-print("someInt is now \(someInt), and anotherInt is now \(anotherInt)")
-// Prints "someInt is now 107, and anotherInt is now 3"
-```
+	}
+	// 参数a本身定义是常量，inout修饰，可以修改a的值
+	var someInt = 3
+	var anotherInt = 107
+	swapTwoInts(&someInt, &anotherInt)
+	print("someInt is now \(someInt), and anotherInt is now \(anotherInt)")
+	// Prints "someInt is now 107, and anotherInt is now 3"
+	```
 #### 5.什么是高阶函数
 * 一个函数如果可以以某一个函数作为参数, 或者是返回值, 那么这个函数就称之为高阶函数
 
@@ -85,37 +82,35 @@ print("someInt is now \(someInt), and anotherInt is now \(anotherInt)")
 	
 * 重载 ～= 该运算符
 
-```swift
-switch 80 {
-case "eighty":
+	```swift
+	switch 80 {
+	   case "eighty":
     //编译通过并且匹配
-case "not eighty":
-    //
-default:
-   break
-}
-//以上代码编译直接失败失败
-//重载 ～= 函数
-func ~= (pattern: String, value: Int) -> Bool {
-    if pattern == "eighty" {
-        return value == 80
-    } else if pattern == "not eighty" {
-        return value != 80
-    } else {
-        return false
-    }
-}
+	   case "not eighty":
+	   default:
+	     break
+	}
+	//以上代码编译直接失败失败
+	//重载 ～= 函数
+	func ~= (pattern: String, value: Int) -> Bool {
+   	   if pattern == "eighty" {
+       	return value == 80
+       } else if pattern == "not eighty" {
+            return value != 80
+       } else {
+            return false
+       }
+	}
 
-switch 80 {
-case "eighty":
-    //编译通过并且匹配
-case "not eighty":
-    //
-default:
-   break
-}
-该switch编译通过
-```
+	switch 80 {
+	   case "eighty":
+     //编译通过并且匹配
+	   case "not eighty":
+	   default:
+   	     break
+	}
+	该switch编译通过
+	```
 
 #### 8.dynamic framework 和 static framework 的区别是什么
 * 可参考[该文章](https://www.cnblogs.com/junhuawang/p/7598236.html)
@@ -213,57 +208,63 @@ let price = 0
 
 #### 18. 闭包
 * `闭包和函数是引用类型`，将函数或闭包赋值给一个常量还是变量，实际上都是将常量或变量的值设置为对应函数或闭包的引用。
-```swift
-func makeInCount(count: Int) -> () -> Int {
-    var total = 0
-    func incrementer() -> Int {
-        total += count
-        return count
-    }
-    return incrementer
-}
-let incrementBySeven = makeInCount(count: 7)
-incrementBySeven()
-let alsoIncrementBySeven = incrementBySeven
-alsoIncrementBySeven()
-```
+  ```swift
+  func makeInCount(count: Int) -> () -> Int {
+      var total = 0
+      func incrementer() -> Int {
+          total += count
+          return count
+      }
+      return incrementer
+  }
+  let incrementBySeven = makeInCount(count: 7)
+  incrementBySeven()
+  let alsoIncrementBySeven = incrementBySeven
+  alsoIncrementBySeven()
+  ```
 * `逃逸闭包`，当一个闭包作为参数传到一个函数中，但是这个闭包在函数返回之后才被执行，我们称该闭包从函数中逃逸。当你定义接受闭包作为参数的函数时，你可以在参数名之前标注 @escaping，用来指明这个闭包是允许“逃逸”出这个函数的。 例如网络请求⬇️
-```swift
-func request(result:@escaping((String)->())){
-    DispatchQueue.main.asyncAfter(wallDeadline: DispatchWallTime.now() + 10) {
-        result("数据结果")
-    }
-}
-```
+  ```swift
+  func request(result:@escaping((String)->())){
+      DispatchQueue.main.asyncAfter(wallDeadline: DispatchWallTime.now() + 10) {
+          result("数据结果")
+      }
+  }
+  ```
 
 * `非逃逸闭包`, 永远不会离开一个函数的局部作用域的闭包就是非逃逸闭包。
-```swift 
-func player(complete:(Bool)->()){
-    complete(true)
-}
-```
+  ```swift 
+  func player(complete:(Bool)->()){
+      complete(true)
+  }
+  ```
 * `自动闭包`，自动闭包是一种自动创建的闭包，用于包装传递给函数作为参数的表达式。这种闭包不接受任何参数，当它被调用的时候，会返回被包装在其中的表达式的值。当闭包作为参数传入 可用@autoclosure标记闭包参数 ，可将参数当函数调用而并非以闭包的形式。这种便利语法让你能够省略闭包的花括号，用一个普通的表达式来代替显式的闭包
- ```swift 
-var customersInLine = ["Chris", "Alex", "Ewa", "Barry", "Daniella"]
-print(customersInLine.count)
-// 打印出“5”
-let customerProvider = { customersInLine.remove(at: 0) }
-print(customersInLine.count)
-// 打印出“5”
 
-print("Now serving \(customerProvider())!")
-// 打印出“Now serving Chris!”
-print(customersInLine.count)
-// 打印出“4”
+   ```swift 
+    var customersInLine = ["Chris", "Alex", "Ewa", "Barry", "Daniella"]
+    print(customersInLine.count)
+    // 打印出“5”
 
-// 
-// customersInLine is ["Ewa", "Barry", "Daniella"]
-func serve(customer customerProvider: @autoclosure () -> String) {
+    let customerProvider = { customersInLine.remove(at: 0) }
+    print(customersInLine.count)
+    // 打印出“5”
+
     print("Now serving \(customerProvider())!")
-}
-serve(customer: customersInLine.remove(at: 0))
-// 打印“Now serving Ewa!”
-// 不用  @autoclosure 修饰
-serve(customer: { customersInLine.remove(at: 0) } )
-// 打印“Now serving Ewa!”
-```
+    // 打印出“Now serving Chris!”
+
+    print(customersInLine.count)
+    // 打印出“4”
+    
+    // customersInLine is ["Ewa", "Barry", "Daniella"]
+    func serve(customer customerProvider: @autoclosure () -> String) {
+        print("Now serving \(customerProvider())!")
+    }
+    serve(customer: customersInLine.remove(at: 0)) 
+    // 打印“Now serving Ewa!”
+
+    //不用  @autoclosure 修饰 
+    func serve(customer customerProvider: () -> String) {
+        print("Now serving \(customerProvider())!")
+    }
+    serve(customer: { customersInLine.remove(at: 0) } )
+    //打印“Now serving Ewa!”
+  ```
